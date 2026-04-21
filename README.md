@@ -21,7 +21,7 @@ No premium APIs, no opaque scraping services, no "enriched" fields pulled from m
 
 ### 2. The methodology is documented and auditable
 
-Every non-trivial calculation is pinned down in [CLAUDE.md](CLAUDE.md) and implemented as pure, testable code in [src/services/metrics.py](src/services/metrics.py) and [src/services/portfolio_calc.py](src/services/portfolio_calc.py):
+Every non-trivial calculation is implemented as pure, testable code in [src/services/metrics.py](src/services/metrics.py) and [src/services/portfolio_calc.py](src/services/portfolio_calc.py):
 
 | What | How it's computed |
 |---|---|
@@ -96,12 +96,26 @@ Open `http://localhost:8000` for the dashboard.
 
 ## API
 
-All routes live under `/api` except `/health` and `/`. See [CLAUDE.md](CLAUDE.md#api-endpoints) for the full table. A few highlights:
+All routes live under `/api` except `/health` and `/`.
 
-- `GET /api/leaderboard` — politicians ranked by return vs benchmark
-- `GET /api/politicians/{id}/metrics` — CAGR, Sharpe, beta, alpha, drawdown
-- `GET /api/comparison?politician_id=&benchmark=&mode=trade|filing` — side-by-side series
-- `POST /api/subscriptions` — subscribe a Telegram chat to a politician's new trades
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/politicians` | List all politicians with trade counts |
+| GET | `/api/politicians/{id}/trades` | All trades for a politician |
+| GET | `/api/politicians/{id}/portfolio` | Current portfolio snapshot |
+| GET | `/api/politicians/{id}/metrics` | Risk metrics (CAGR, Sharpe, beta, alpha, drawdown) |
+| GET | `/api/leaderboard` | Politicians ranked by return vs benchmark |
+| GET | `/api/comparison` | Side-by-side politician vs benchmark series |
+| GET | `/api/benchmarks` | Available benchmark tickers |
+| GET | `/api/trades/recent` | Recent trades across all politicians |
+| POST | `/api/admin/update-prices` | Trigger manual price refresh |
+| POST | `/api/admin/enrich-parties` | Re-run party/chamber enrichment |
+| GET | `/api/admin/debug-enrichment` | Inspect enrichment data |
+| POST | `/api/admin/set-parties` | Manually set party for a politician |
+| POST | `/api/subscriptions` | Create Telegram alert subscription |
+| GET | `/api/subscriptions` | List subscriptions |
+| DELETE | `/api/subscriptions/{id}` | Delete subscription |
+| GET | `/health` | Health check |
 
 ---
 
@@ -117,7 +131,26 @@ src/
 └── telegram/    # send-only bot
 ```
 
-See [CLAUDE.md](CLAUDE.md) for module-by-module responsibilities and [PHASES.md](PHASES.md) for the development roadmap.
+### Module responsibilities
+
+| Module | Responsibility |
+|---|---|
+| `src/models/` | Pydantic models: `Politician`, `Trade`, `Price`, `Portfolio`, `Holding`, `ProfitRecord`, `TelegramSubscription`; `Party`/`Chamber`/`TradeType` enums |
+| `src/scraper/house_scraper.py` | Scrapes House PTR XML index and parses PDFs via `pdfplumber` |
+| `src/scraper/price_fetcher.py` | yfinance batch fetching with in-memory cache |
+| `src/scraper/fmp_enrichment.py` | Party/chamber lookup from congress-legislators dataset |
+| `src/services/portfolio_calc.py` | Portfolio reconstruction, P&L, daily series |
+| `src/services/index_compare.py` | Benchmark series, date-range helpers, normalised return series |
+| `src/services/metrics.py` | Pure numerical: CAGR, Sharpe, beta, alpha, drawdown (no DB, no async) |
+| `src/services/alert_service.py` | Formats and dispatches Telegram alerts on new trades |
+| `src/services/trade_service.py` | Orchestrates House scraper → deduplication → DB storage |
+| `src/db/database.py` | WAL setup, schema DDL, async connection lifecycle |
+| `src/db/repositories.py` | `PoliticianRepository`, `TradeRepository`, `PriceRepository`, `SubscriptionRepository` |
+| `src/api/` | FastAPI routers wired together in `app.py`; mounts `static/` |
+| `src/telegram/bot.py` | Send-only Telegram bot with mock fallback |
+| `scheduler.py` | APScheduler: hourly trade scrape + 30-min price update |
+
+See [PHASES.md](PHASES.md) for the development roadmap.
 
 ---
 
