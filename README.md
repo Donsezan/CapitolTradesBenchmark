@@ -150,8 +150,6 @@ src/
 | `src/telegram/bot.py` | Send-only Telegram bot with mock fallback |
 | `scheduler.py` | APScheduler: hourly trade scrape + 30-min price update |
 
-See [PHASES.md](PHASES.md) for the development roadmap.
-
 ---
 
 ## Testing
