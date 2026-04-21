@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "capitol-trade-follower"
+version = "0.1.0"
+description = "Track U.S. congressional stock trades with real-time alerts"
+authors = [{name = "User", email = "user@example.com"}]
+requires-python = ">=3.10"
+
+dependencies = [
+    "fastapi>=0.104",
+    "uvicorn[standard]>=0.24",
+    "pydantic>=2.0",
+    "aiosqlite>=0.19",
+    "yfinance>=0.2",
+    "pandas>=2.0",
+    "python-telegram-bot>=20.0",
+    "apscheduler>=3.10",
+    "requests>=2.31",
+    "python-dotenv>=1.0",
+    "pdfplumber>=0.10",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-asyncio>=0.21",
+    "pytest-cov>=4.1",
+    "httpx>=0.25",
+    "ruff>=0.4",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v"
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = [
+    "B008",   # do not perform function calls in default arguments (FastAPI Query pattern)
+    "SIM108", # ternary operator — sometimes less readable
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "config", "scheduler"]

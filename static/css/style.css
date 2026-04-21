@@ -1,0 +1,396 @@
+/* ── Reset & base ────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0d0f14;
+  --surface:   #151820;
+  --glass-bg:  rgba(255,255,255,0.04);
+  --glass-bdr: rgba(255,255,255,0.08);
+  --accent:    #7c6af7;
+  --green:     #34d399;
+  --red:       #f87171;
+  --text:      #e2e8f0;
+  --muted:     #64748b;
+  --radius:    12px;
+  font-size:   15px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Header ──────────────────────────────────────────── */
+.site-header {
+  padding: 2rem 2rem 1rem;
+  border-bottom: 1px solid var(--glass-bdr);
+}
+.site-header h1 { font-size: 1.6rem; font-weight: 700; }
+.subtitle { color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem; }
+
+/* ── Layout ──────────────────────────────────────────── */
+.container { max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+
+.grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 900px) { .grid-two { grid-template-columns: 1fr; } }
+
+/* ── Glassmorphism card ───────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-bdr);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.card { padding: 1.25rem; margin-bottom: 1.25rem; }
+.card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+
+/* ── Controls bar ────────────────────────────────────── */
+.controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.range-pills { display: flex; gap: 0.35rem; }
+.pill {
+  background: transparent;
+  border: 1px solid var(--glass-bdr);
+  color: var(--muted);
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all .15s;
+}
+.pill:hover { border-color: var(--accent); color: var(--text); }
+.pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.benchmark-selector { display: flex; gap: 0.5rem; align-items: center; }
+.benchmark-selector select,
+.benchmark-selector input {
+  background: var(--surface);
+  border: 1px solid var(--glass-bdr);
+  color: var(--text);
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+}
+.benchmark-selector input { width: 120px; }
+
+/* ── Tables ──────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+thead th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 500;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--glass-bdr);
+}
+tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: background .1s;
+}
+tbody tr:hover { background: rgba(255,255,255,0.04); }
+tbody td { padding: 0.45rem 0.6rem; }
+
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+.pol-party-filter {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+.party-filter-btn {
+  flex: 1;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.party-filter-btn.active,
+.party-filter-btn:hover { background: rgba(255,255,255,0.13); color: var(--text); }
+.party-filter-btn.party-D.active { background: rgba(96,165,250,0.2); color: #60a5fa; border-color: #60a5fa55; }
+.party-filter-btn.party-R.active { background: rgba(248,113,113,0.2); color: #f87171; border-color: #f8717155; }
+
+.party-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+.party-D { background: rgba(96,165,250,0.15); color: #60a5fa; }
+.party-R { background: rgba(248,113,113,0.15); color: #f87171; }
+.party-Other { background: rgba(148,163,184,0.12); color: #94a3b8; }
+
+/* ── Chart wrapper ───────────────────────────────────── */
+.chart-wrap { position: relative; height: 260px; }
+.chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+/* ── Trade feed ──────────────────────────────────────── */
+.trade-feed { display: flex; flex-direction: column; gap: 0.5rem; max-height: 320px; overflow-y: auto; }
+.trade-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  font-size: 0.82rem;
+}
+.trade-item .badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+.badge-buy  { background: rgba(52,211,153,0.15); color: var(--green); }
+.badge-sell { background: rgba(248,113,113,0.15); color: var(--red); }
+.trade-item .ticker { font-weight: 600; min-width: 55px; }
+.trade-item .pol-name { color: var(--muted); flex: 1; }
+.trade-item .amount { color: var(--muted); font-size: 0.75rem; }
+.trade-item .date-tag { color: var(--muted); font-size: 0.75rem; }
+
+/* ── Section header with actions ─────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.section-header h2 { margin-bottom: 0; }
+.section-header-actions { display: flex; gap: 0.3rem; }
+.btn-icon {
+  background: transparent;
+  border: 1px solid var(--glass-bdr);
+  color: var(--muted);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .1s, border-color .1s;
+}
+.btn-icon:hover { color: var(--text); border-color: var(--accent); }
+
+/* ── Detail section ──────────────────────────────────── */
+.detail-grid { display: grid; grid-template-columns: 1fr 260px; gap: 1.25rem; margin-bottom: 1rem; }
+@media (max-width: 700px) { .detail-grid { grid-template-columns: 1fr; } }
+
+/* ── Subscription form ───────────────────────────────── */
+.sub-form { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+.sub-form input, .sub-form select {
+  background: var(--surface);
+  border: 1px solid var(--glass-bdr);
+  color: var(--text);
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+}
+#subList { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.82rem; }
+#subList li {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+}
+#subList li button { margin-left: auto; }
+
+/* ── Buttons ─────────────────────────────────────────── */
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: opacity .15s;
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--glass-bdr);
+  padding: 0.35rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.btn-secondary:hover { color: var(--text); }
+.btn-danger {
+  background: rgba(248,113,113,0.12);
+  color: var(--red);
+  border: 1px solid rgba(248,113,113,0.25);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+/* ── Politicians search dropdown ─────────────────────── */
+.pol-search-wrap {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+.pol-search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--glass-bdr);
+  color: var(--text);
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  transition: border-color .15s;
+}
+.pol-search-input:focus { border-color: var(--accent); }
+.pol-search-input::placeholder { color: var(--muted); }
+
+.pol-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #1a1d26;
+  border: 1px solid var(--glass-bdr);
+  border-radius: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.pol-dropdown.open { display: block; }
+
+.pol-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background .1s;
+}
+.pol-option:last-child { border-bottom: none; }
+.pol-option:hover, .pol-option.focused { background: rgba(124,106,247,0.12); }
+.pol-option.already-added { opacity: 0.4; cursor: default; }
+.pol-option-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chamber-badge {
+  font-size: 0.68rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.07);
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.trade-count-badge {
+  font-size: 0.68rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(52,211,153,0.12);
+  color: var(--green);
+  flex-shrink: 0;
+}
+.no-trades-badge {
+  font-size: 0.68rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.pol-dropdown-empty {
+  padding: 0.75rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: italic;
+  text-align: center;
+}
+
+/* ── Politicians panel ───────────────────────────────── */
+.pol-selected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.pol-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  border: 1px solid var(--glass-bdr);
+  cursor: pointer;
+  transition: background .1s;
+}
+.pol-chip:hover { background: rgba(255,255,255,0.07); }
+.pol-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pol-chip-name { flex: 1; font-size: 0.83rem; }
+.pol-chip-party { font-size: 0.75rem; }
+.pol-chip-remove {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0 0.1rem;
+  transition: color .1s;
+}
+.pol-chip-remove:hover { color: var(--red); }
+.pol-no-data {
+  font-size: 0.7rem;
+  color: var(--muted);
+  border: 1px solid var(--muted);
+  border-radius: 3px;
+  padding: 0 3px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+/* ── Misc ────────────────────────────────────────────── */
+.loading { color: var(--muted); font-style: italic; padding: 0.5rem 0; }
+.hint    { color: var(--muted); font-size: 0.78rem; margin-bottom: 0.75rem; }
+
+/* ── Scrollbar ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-bdr); border-radius: 4px; }

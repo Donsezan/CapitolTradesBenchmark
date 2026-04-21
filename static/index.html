@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Capitol Trade Follower</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>🏛️ Capitol Trade Follower</h1>
+    <p class="subtitle">Real-time U.S. congressional stock trades</p>
+  </header>
+
+  <main class="container">
+
+    <!-- Controls -->
+    <section class="controls-bar glass">
+      <div class="range-pills" id="rangePills">
+        <button class="pill" data-range="1D">1D</button>
+        <button class="pill" data-range="5D">5D</button>
+        <button class="pill" data-range="1M">1M</button>
+        <button class="pill" data-range="6M">6M</button>
+        <button class="pill" data-range="YTD">YTD</button>
+        <button class="pill active" data-range="1Y">1Y</button>
+        <button class="pill" data-range="5Y">5Y</button>
+        <button class="pill" data-range="MAX">MAX</button>
+      </div>
+      <div class="benchmark-selector">
+        <select id="benchmarkSelect">
+          <option value="^GSPC">S&amp;P 500</option>
+          <option value="^IXIC">NASDAQ Composite</option>
+          <option value="QQQ">Nasdaq-100 ETF (QQQ)</option>
+          <option value="DIA">Dow Jones ETF (DIA)</option>
+          <option value="^RUT">Russell 2000</option>
+          <option value="SPY">S&amp;P 500 ETF (SPY)</option>
+          <option value="custom">Custom ticker…</option>
+        </select>
+        <input type="text" id="benchmarkCustom" placeholder="Enter ticker…" style="display:none" />
+      </div>
+      <button id="refreshPricesBtn" class="btn-secondary" title="Force-fetch latest prices from yfinance">&#x21BB; Refresh Prices</button>
+      <button id="enrichPartiesBtn" class="btn-secondary" title="Update politician party info from FMP">&#x2605; Enrich Parties</button>
+    </section>
+
+    <div class="grid-two">
+
+      <!-- Politicians selector -->
+      <section class="card glass" id="politiciansSection">
+        <h2>👥 Politicians</h2>
+        <div class="pol-party-filter" id="polPartyFilter">
+          <button class="party-filter-btn active" data-party="">All</button>
+          <button class="party-filter-btn party-D" data-party="D">Democrat</button>
+          <button class="party-filter-btn party-R" data-party="R">Republican</button>
+        </div>
+        <div class="pol-search-wrap" id="polSearchWrap">
+          <input type="text" id="polSearchInput" class="pol-search-input" placeholder="Search politicians…" autocomplete="off" />
+          <div class="pol-dropdown" id="polDropdown"></div>
+        </div>
+        <div id="polSelectedList" class="pol-selected-list">
+          <p class="hint" id="polEmptyHint">Select politicians above to compare their portfolio performance.</p>
+        </div>
+      </section>
+
+      <!-- Comparison chart -->
+      <section class="card glass" id="comparisonSection">
+        <h2>📈 Portfolio vs Benchmark</h2>
+        <p class="hint">Added politicians will appear here vs the selected benchmark.</p>
+        <div class="chart-wrap">
+          <canvas id="comparisonChart"></canvas>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Politician detail (hidden until selected) -->
+    <section class="card glass" id="politicianDetail" style="display:none">
+      <div class="section-header">
+        <h2 id="detailName"></h2>
+        <div class="section-header-actions">
+          <button id="toggleDetail" class="btn-icon" title="Minimize">&#x2212;</button>
+          <button id="closeDetail" class="btn-icon" title="Close">&#x2715;</button>
+        </div>
+      </div>
+      <div id="detailBody">
+        <div class="detail-grid">
+          <div>
+            <h3>Holdings</h3>
+            <table id="holdingsTable">
+              <thead><tr><th>Ticker</th><th>Shares</th><th>Avg Cost</th><th>Price</th><th>P&L</th></tr></thead>
+              <tbody id="holdingsBody"></tbody>
+            </table>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="allocationChart"></canvas>
+          </div>
+        </div>
+        <h3 style="margin-top:1.5rem">Disclosed Trades</h3>
+        <table id="tradesTable">
+          <thead><tr><th>Date</th><th>Ticker</th><th>Type</th><th>Amount Range</th></tr></thead>
+          <tbody id="tradesBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Recent trades feed -->
+    <section class="card glass" id="tradeFeedSection">
+      <div class="section-header">
+        <h2>🔔 Recent Trades</h2>
+        <button id="toggleTradeFeed" class="btn-icon" title="Minimize">&#x2212;</button>
+      </div>
+      <div id="tradeFeedBody">
+        <div id="tradeFeed" class="trade-feed">
+          <p class="loading">Loading…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="card glass" id="leaderboardSection">
+      <div class="section-header">
+        <h2>🏆 Profit Leaderboard</h2>
+        <div class="section-header-actions">
+          <select id="leaderboardSort" class="leaderboard-sort-select">
+            <option value="return_pct">Total Return %</option>
+            <option value="current_value">Portfolio Value</option>
+            <option value="realized_pnl">Realized P&amp;L</option>
+            <option value="unrealized_pnl">Unrealized P&amp;L</option>
+          </select>
+          <button id="toggleLeaderboard" class="btn-icon" title="Minimize">&#x2212;</button>
+        </div>
+      </div>
+      <div id="leaderboardBody">
+        <table id="leaderboardTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Politician</th>
+              <th>Party</th>
+              <th>Chamber</th>
+              <th>Return %</th>
+              <th>Portfolio Value</th>
+              <th>Realized P&amp;L</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardTbody">
+            <tr><td colspan="7" class="loading">Loading leaderboard…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Subscriptions -->
+    <section class="card glass" id="subscriptionsSection">
+      <h2>🔔 Telegram Subscriptions</h2>
+      <p class="hint">Enter your Telegram chat ID to receive alerts when a politician trades.</p>
+      <div class="sub-form">
+        <input type="text" id="chatIdInput" placeholder="Telegram Chat ID" />
+        <select id="subPoliticianSelect"><option value="">— select politician —</option></select>
+        <button id="subscribBtn" class="btn-primary">Subscribe</button>
+      </div>
+      <ul id="subList"></ul>
+    </section>
+
+  </main>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/charts.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
