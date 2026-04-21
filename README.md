@@ -1,5 +1,7 @@
 # Capitol Trades Benchmark
-![alt text](image.png)
+<p align="center">
+  <img src="image.png" alt="Capitol Trades Benchmark" width="300"/>
+</p>
 
 Track U.S. House of Representatives stock trades, reconstruct each member's portfolio, and benchmark their returns against major market indices (SPY, QQQ, etc.) — served through a FastAPI dashboard with Chart.js visualisations and optional Telegram alerts.
 
